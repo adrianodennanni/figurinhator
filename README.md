@@ -1,2 +1,24 @@
-# figurinhator
-Web App feito para gerenciar suas figurinhas do álbum Panini da Copa do Mundo FIFA de 2018
+# README
+
+This README would normally document whatever steps are necessary to get the
+application up and running.
+
+Things you may want to cover:
+
+* Ruby version
+
+* System dependencies
+
+* Configuration
+
+* Database creation
+
+* Database initialization
+
+* How to run the test suite
+
+* Services (job queues, cache servers, search engines, etc.)
+
+* Deployment instructions
+
+* ...
