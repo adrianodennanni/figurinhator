@@ -1,10 +1,11 @@
 class FigurinhasController < ApplicationController
   before_action :set_figurinha, only: [:show, :edit, :update, :destroy]
+  before_action :authenticate_user!
 
   # GET /figurinhas
   # GET /figurinhas.json
   def index
-    @figurinhas = Figurinha.all
+    @figurinhas = current_user.figurinhas
   end
 
   # GET /figurinhas/1
@@ -24,15 +25,25 @@ class FigurinhasController < ApplicationController
   # POST /figurinhas
   # POST /figurinhas.json
   def create
-    @figurinha = Figurinha.new(figurinha_params)
+    figurinhas_novas = []
+    figurinhas_antigas = current_user.figurinhas.pluck(:numero, :quantidade).to_h
+
+    params.permit![:text_numeros].first.scan(/\d{1,3}/).map(&:to_i).each do |numero|
+      figurinhas_novas << {
+        numero: numero,
+        figurinha_info_id: numero+1,
+        quantidade: figurinhas_antigas[numero].to_i+1,
+        user_id: current_user.id
+      }
+    end
 
     respond_to do |format|
-      if @figurinha.save
-        format.html { redirect_to @figurinha, notice: 'Figurinha was successfully created.' }
-        format.json { render :show, status: :created, location: @figurinha }
+      if figurinhas = Figurinha.create(figurinhas_novas)
+        format.html { redirect_to '/figurinhas', notice: 'As figurihas foram criadas.' }
+        format.json { render :show, status: :created, location: '/figurinhas' }
       else
         format.html { render :new }
-        format.json { render json: @figurinha.errors, status: :unprocessable_entity }
+        format.json { render json: figurinhas.errors, status: :unprocessable_entity }
       end
     end
   end
