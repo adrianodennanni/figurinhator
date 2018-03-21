@@ -10,10 +10,29 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_03_21_010225) do
+ActiveRecord::Schema.define(version: 2018_03_21_023018) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "figurinha_infos", force: :cascade do |t|
+    t.string "numero", null: false
+    t.string "nome", null: false
+    t.string "image_url"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["numero"], name: "index_figurinha_infos_on_numero"
+  end
+
+  create_table "figurinhas", force: :cascade do |t|
+    t.integer "numero", null: false
+    t.integer "quantidade", default: 1, null: false
+    t.bigint "user_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["numero"], name: "index_figurinhas_on_numero"
+    t.index ["user_id"], name: "index_figurinhas_on_user_id"
+  end
 
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
@@ -33,4 +52,5 @@ ActiveRecord::Schema.define(version: 2018_03_21_010225) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "figurinhas", "users"
 end

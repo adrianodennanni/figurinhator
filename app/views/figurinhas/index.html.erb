@@ -1,0 +1,31 @@
+<div class="page-header">
+  <%= link_to new_figurinha_path, class: 'btn btn-primary' do %>
+    <span class="glyphicon glyphicon-plus"></span>
+    New Figurinha
+  <% end %>
+  <h1>Listing figurinhas</h1>
+</div>
+
+<div class="table-responsive">
+  <table class="table table-striped table-bordered table-hover">
+    <thead>
+      <tr>
+        <th>Número da figurinha</th>
+        <th>Quantidade</th>
+        <th></th>
+        <th></th>
+        <th></th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <% current_user.figurinhas.each do |figurinha| %>
+        <td><%= figurinha.numero %></td>
+        <td><%= figurinha.quantidade %></td>
+        <td><%= link_to 'Show', figurinha %></td>
+        <td><%= link_to 'Edit', edit_figurinha_path(figurinha) %></td>
+        <td><%= link_to 'Destroy', figurinha, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      <% end %>
+    </tbody>
+  </table>
+</div>
