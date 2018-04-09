@@ -25,25 +25,36 @@ class FigurinhasController < ApplicationController
   # POST /figurinhas
   # POST /figurinhas.json
   def create
-    figurinhas_novas = []
-    figurinhas_antigas = current_user.figurinhas.pluck(:numero, :quantidade).to_h
+    figurinhas_antigas = {}
+    figurinhas_novas = {}
+    current_user.figurinhas.each do |fig|
+      figurinhas_antigas[fig.numero] = fig
+    end
 
     params.permit![:text_numeros].first.scan(/\d{1,3}/).map(&:to_i).each do |numero|
-      figurinhas_novas << {
-        numero: numero,
-        figurinha_info_id: numero+1,
-        quantidade: figurinhas_antigas[numero].to_i+1,
-        user_id: current_user.id
-      }
+      if figurinhas_antigas.key?(numero)
+        figurinhas_antigas[numero][:quantidade] += 1
+      else
+        if figurinhas_novas.key?(numero)
+          figurinhas_novas[numero][:quantidade] += 1
+        else
+          figurinhas_novas[numero] = {
+            numero: numero,
+            figurinha_info_id: numero + 1,
+            quantidade: 1,
+            user_id: current_user.id
+          }
+        end
+      end
     end
 
     respond_to do |format|
-      if figurinhas = Figurinha.create(figurinhas_novas)
-        format.html { redirect_to '/figurinhas', notice: 'As figurihas foram criadas.' }
+      if figurinhas_record = Figurinha.create(figurinhas_novas.values) && figurinhas_antigas.values.each(&:save)
+        format.html { redirect_to '/figurinhas', notice: 'As figurinhas foram adicionadas.' }
         format.json { render :show, status: :created, location: '/figurinhas' }
       else
         format.html { render :new }
-        format.json { render json: figurinhas.errors, status: :unprocessable_entity }
+        format.json { render json: figurinhas_record.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -70,6 +81,50 @@ class FigurinhasController < ApplicationController
       format.html { redirect_to figurinhas_url, notice: 'Figurinha was successfully destroyed.' }
       format.json { head :no_content }
     end
+  end
+
+  def add_one
+    figurinha = Figurinha.find(params.permit![:figurinha_id])
+    figurinha.quantidade += 1
+
+    respond_to do |format|
+      if figurinha.save
+        format.html { redirect_to '/figurinhas', notice: 'Quantidade atualizada' }
+        format.json { render :show, status: :created, location: '/figurinhas' }
+      else
+        format.html { render :new }
+        format.json { render json: figurinha.errors, status: :unprocessable_entity }
+      end
+    end
+  end
+
+  def remove_one
+    figurinha = Figurinha.find(params.permit![:figurinha_id])
+    figurinha.quantidade -= 1
+
+    if figurinha.quantidade < 1
+      respond_to do |format|
+        if figurinha.delete
+          format.html { redirect_to '/figurinhas', notice: 'Figurinha removida' }
+          format.json { render :show, status: :created, location: '/figurinhas' }
+        else
+          format.html { render :new }
+          format.json { render json: figurinha.errors, status: :unprocessable_entity }
+        end
+      end
+    else
+      respond_to do |format|
+        if figurinha.save
+          format.html { redirect_to '/figurinhas', notice: 'Quantidade atualizada' }
+          format.json { render :show, status: :created, location: '/figurinhas' }
+        else
+          format.html { render :new }
+          format.json { render json: figurinha.errors, status: :unprocessable_entity }
+        end
+      end
+    end
+
+
   end
 
   private

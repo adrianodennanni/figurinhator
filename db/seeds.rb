@@ -9,6 +9,9 @@
 
 require 'csv'
 
+User.create(email: 'teste@teste.com', password: '12345678', name: 'Teste 1')
+User.create(email: 'teste2@teste.com', password: '12345678', name: 'Teste 2')
+
 csv_text = File.read("#{Rails.root}/db/seeds/figurinha_info.csv")
 csv = CSV.parse(csv_text, :headers => true)
 puts 'Gerando seeds de informações de figurinhas'

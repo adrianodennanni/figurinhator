@@ -1,5 +1,5 @@
 <div class="page-header">
-  <%= link_to new_figurinha_path, class: 'btn btn-primary' do %>
+  <%= link_to new_figurinha_path, class: 'btn btn-success' do %>
     <span class="glyphicon glyphicon-plus"></span>
     Adicionar figurinhas
   <% end %>
@@ -7,6 +7,12 @@
 </div>
 
 <div class="table-responsive">
+  <% if params['only_repeated'] == 'true' %>
+    <%= button_to 'Mostar todas figurinhas', '/figurinhas', params: { only_repeated: false }, class: 'btn btn-primary', method: :get %>
+  <% else %>
+    <%= button_to 'Omitir figurinhas não-repetidas', '/figurinhas', params: { only_repeated: true }, class: 'btn btn-primary', method: :get %>
+  <% end %>
+  <br>
   <table class="table table-striped table-bordered table-hover">
     <thead>
       <tr>
@@ -16,19 +22,28 @@
         <th class="col-xs-4">Imagem</th>
         <th></th>
         <th></th>
-        <th></th>
       </tr>
     </thead>
 
     <tbody>
-      <% @figurinhas.each do |figurinha| %>
-        <td><%= figurinha.numero %></td>
-        <td><%= figurinha.quantidade %></td>
-        <td><%= figurinha.figurinha_info.nome %></td>
-        <td><%= image_tag(figurinha.figurinha_info.image_url.to_s, size: "150x200", alt: "Imagem indisponível") %></td>
-        <td>+</td>
-        <td>-</td>
-        <td><%= link_to 'Edit', edit_figurinha_path(figurinha) %></td>
+      <% if params['only_repeated'] == 'true' %>
+        <% @figurinhas = @figurinhas.where('quantidade > 1') %>
+      <% else %>
+        <% @figurinhas = current_user.figurinhas %>
+      <% end %>
+      <% @figurinhas.order("numero asc").each do |figurinha| %>
+        <tr>
+          <td><%= figurinha.numero %></td>
+          <% if params['only_repeated'] == 'true' %>
+            <td><%= figurinha.quantidade - 1 %></td>
+          <% else %>
+            <td><%= figurinha.quantidade %></td>
+          <% end %>
+          <td><%= figurinha.figurinha_info.nome %></td>
+          <td><%= image_tag(figurinha.figurinha_info.image_url.to_s, size: "150x200", alt: "Imagem indisponível") %></td>
+          <td><%= button_to '+', 'figurinhas/add_one', params: { figurinha_id: figurinha.id } %></td>
+          <td><%= button_to '-', 'figurinhas/remove_one', params: { figurinha_id: figurinha.id } %></td>
+        </tr>
       <% end %>
     </tbody>
   </table>
