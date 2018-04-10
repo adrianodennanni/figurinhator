@@ -19,6 +19,22 @@
   <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
   <%= csrf_meta_tags %>
 </head>
+<% if current_user %>
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="<%= root_url %>">Figurinhator</a>
+      </div>
+      <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+          <li><a><%= current_user.name %></a></li>
+          <li><a><%= current_user.email %></a></li>
+          <li><%= link_to('Logout', destroy_user_session_path, method: :delete) %>   </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+<% end %>
 <body style="padding: 40px 60px 0px 60px;">
   <div class="container">
     <% flash.each do |name, msg| %>

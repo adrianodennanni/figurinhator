@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
   resources :figurinhas
-  devise_for :users
+  devise_for :users, controllers: { registrations: 'users/registrations' }
   root to: 'figurinhas#index'
   post 'figurinhas/add_one' => 'figurinhas#add_one'
   post 'figurinhas/remove_one' => 'figurinhas#remove_one'
